@@ -1,0 +1,185 @@
+<!DOCTYPE html >
+<html>
+<head>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+<style>
+*{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+.flex{
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-evenly;
+	margin: 5px;
+    	padding: 5px;
+}
+
+
+.todo-box {
+	background-color: cornsilk;
+	margin: 10px;
+	padding: 10px;
+	border-radius: 2px;
+	border: 2px solid gray;
+	box-shadow: 5px 3px grey;
+}
+
+.todo-box:hover {
+	box-shadow: -6px -4px dimgray;
+}
+.todo-box ul{list-style-type: none;}
+
+.todo-title, .todo-title input {
+	font-weight: bolder;
+	font-size: larger;
+}
+.todo-item {
+	padding: 2px;
+}
+.btn-save{
+    margin: 5px auto;
+    padding: 5px 15px;
+    background-color: lightgreen;
+    border-radius: 20% 20% 30% 30%;
+    display: block;
+    font-weight: bolder;
+}
+.close-btn{
+	float: right;
+	background-color: cornsilk;
+}
+.close-btn span:hover{
+	font-size: 28px;
+}
+.material-icons{ color:darkgreen;}
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-36 { font-size: 36px; }
+.material-icons.md-48 { font-size: 48px; }
+input[type=checkbox]{accent-color: darkgreen; margin: 5px;}
+</style>
+<script>
+ 
+var todos = JSON.parse( localStorage.getItem('myTodo') ) || [{'title': 'Dummy title',
+	'items': [{'act':'item1', 'checked':false}, {'act':'item2', 'checked':false}]	
+	}];
+
+console.log(todos);
+function addMoreInput(){
+	var todoSpan = document.querySelector('#todo-form1');
+	let input = document.createElement('input');
+	input.setAttribute('class','todo-item');
+	input.setAttribute('placeholder','Todo Item');
+	let li = document.createElement('li');
+	li.setAttribute('class','todo-item todo-input');
+	li.appendChild(input);
+	todoSpan.appendChild(li);
+	//todoSpan.innerHTML += '<li class="todo-item todo-input"><input class="todo-item" placeholder="Todo item"/></li>'
+}//end func
+
+function save(title){
+	var boxes=document.querySelectorAll('div[name="'+title+'"] li.todo-item input[type=checkbox]')
+	console.log(boxes)
+	for(var i=0; i<todos.length; i++){
+		if(todos[i].title===title){
+			for(var j=0; j<todos[i].items.length; j++){
+				todos[i].items[j].checked = boxes[j].checked;
+			}
+		}
+	}//end for i
+	localStorage.setItem('myTodo', JSON.stringify(todos));
+	location.reload();
+}
+function deleteTodo(title){
+	todos = todos.filter(todo=>todo.title!==title);
+	localStorage.setItem('myTodo', JSON.stringify(todos));
+	location.reload();
+}
+
+function saveTodo(){
+	var title=document.querySelector('input#todo-title');
+	let items=document.querySelectorAll('input.todo-item');
+	var itemsArr=[];
+	for(let item of items){
+		itemsArr.push(item.value);
+	}
+
+	var newTodo = {'title': title.value,
+	'items': itemsArr.map(e=>{return {'act': e, 'checked':false} })
+	}
+	todos.push(newTodo);
+	localStorage.setItem('myTodo', JSON.stringify(todos));
+	location.reload();
+}
+</script>
+</head>
+<body>
+<div class="flex">
+
+
+
+	<div class="todo-box">
+		<div class="todo-title">Title1</div>
+		<ul class="todo-items">
+			<li class="todo-item"><input type="checkbox" checked/>item1</li>
+			<li class="todo-item"><input type="checkbox" checked/>item1</li>
+			<li class="todo-item"><input type="checkbox" checked/>item1</li>
+			<li class="todo-item"><input type="checkbox" checked/>item1</li>
+			<li class="todo-item"><input type="checkbox" checked/>item1</li>
+
+		</ul>
+	</div>
+
+	<div class="todo-box">
+		<div class="todo-title">Title1</div>
+		<ul class="todo-items">
+			<li class="todo-item"><input type="checkbox" checked/>item1</li>
+			<li class="todo-item">item1</li>
+			<li class="todo-item">item1</li>
+		</ul>
+	</div>
+
+	<div class="todo-box">
+		<div class="todo-title">Title1</div>
+		<ul class="todo-items">
+			<li class="todo-item">item1</li>
+			<li class="todo-item">item1</li>
+			<li class="todo-item">item1</li>
+		</ul>
+	</div>
+
+</div>
+<script>
+const fl = document.querySelector('.flex');
+var out = todos.map(todo=>{
+	return(
+		'<div class="todo-box" name="'+todo.title+'">\
+			<button type="button" class="close-btn" onClick="deleteTodo(\''+todo.title+'\')"><span class="material-icons md-18">close</span></button>\
+			<div class="todo-title">'+todo.title+'</div>\
+		<ul class="todo-items">\
+			'+todo.items.reduce((p,c)=>p+'<li class="todo-item"><input type="checkbox"'+ (c.checked ? "checked" : "") +'>'+c.act+'</li>','')+
+		'</ul>\
+		<button type="button" class="btn-save" onClick="save(\''+todo.title+'\')"><span class="material-icons md-18">save</span></button>\
+	</div>'
+	)
+	})
+
+var newbox = '<form class="todo-box">\
+		<div class="todo-title"><input id="todo-title" placeholder="New Todo Title"/></div>\
+		<ul class="todo-items todo-form">\
+			<span id="todo-form1">\
+			<li class="todo-item todo-input"><input class="todo-item" placeholder="Todo item"/></li>\
+			</span>\
+			<li class="todo-item"><button type="button" onClick="addMoreInput()">+</button></li>\
+			<button type="button" class="btn-save" onClick="saveTodo()"><span class="material-icons md-24">save</span></button>\
+		</ul>\
+	</form>';
+fl.innerHTML = out.join('')+newbox;
+</script>
+
+</body>
+</html>
